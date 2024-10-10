@@ -1,4 +1,5 @@
 import os
+import json
 import folder_paths
 import numpy as np
 import torch
@@ -48,7 +49,7 @@ class YOLOTrackerNode:
         tracked = {}
 
         class_tracker_id_map = {}
-
+        log_file=open('./output/video_log.txt','a',encoding='utf-8')
         for idx, image in enumerate(images):
             image = (image.cpu().numpy() * 255).astype(np.uint8)
             # bug with opencv2 and need to convert to pillow first
@@ -74,7 +75,8 @@ class YOLOTrackerNode:
 
                 tracked[class_id][tracker_id][idx] = list(
                     map(lambda x: int(x), detection.xyxy[0])) + [W, H]
-
+                ann=json.dumps(list(map(lambda x: int(x), detection.xyxy[0])) + [W, H])
+                log_file.write(f'{idx},{tracker_id},{class_id},{ann}\n')
             labels = [
                 f"#{tracker_id}.{results.names[class_id].lower()}"
                 for class_id, tracker_id
@@ -86,7 +88,9 @@ class YOLOTrackerNode:
 
             annotated.append(torch.FloatTensor(label_annotator.annotate(
                 annotated_frame, detections=detections, labels=labels))/255.)
-
+        log_file.close()
         annotated = torch.stack(annotated)
         del model
+        # with open('./output/video_tracked.json','w',encoding='utf-8') as f:
+        #     json.dump(tracked, f,ensure_ascii=False)
         return (annotated, tracked)
