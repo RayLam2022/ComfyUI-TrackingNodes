@@ -9,7 +9,7 @@ from ultralytics import YOLO
 
 def get_model_dir():
     root_path = folder_paths.models_dir
-    path = os.path.join(root_path, 'yolov8')
+    path = os.path.join(root_path, 'ultralytics')
     return path
 
 
@@ -39,7 +39,7 @@ class YOLOTrackerNode:
         B, H, W, C = images.shape
         # load a custom model
         model = YOLO(
-            f'{os.path.join(folder_paths.models_dir, "yolov8")}/{model_name}')
+            f'{os.path.join(folder_paths.models_dir, "ultralytics")}/{model_name}')
         tracker = sv.ByteTrack()
         box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator()
